@@ -1,7 +1,23 @@
 #!/usr/bin/env python3
 """
 C/C++ Include Path Case Sensitivity Fixer
-A GUI tool to fix case sensitivity issues in C/C++ include paths for cross-platform compatibility.
+=========================================
+
+A cross-platform GUI tool to scan, detect, and fix case sensitivity issues in C/C++ #include paths.
+
+Features:
+- Scans C/C++ source files for #include statements.
+- Validates include paths and detects case mismatches or missing files.
+- Suggests and applies fixes for case sensitivity issues.
+- Supports custom include directories and missing file search.
+- Useful for Windows/Linux/macOS projects.
+
+Usage:
+    python source_case_fixer.pyw
+    # Follow the GUI instructions to select your project directory and fix issues.
+
+Author: nayanrawat9
+License: MIT
 """
 
 import os
