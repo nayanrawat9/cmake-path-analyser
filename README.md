@@ -41,5 +41,3 @@ MIT License (see LICENSE file)
 For support or questions, open an issue on GitHub or contact the repository owner.
 
 ---
-
-*Screenshots and more detailed usage instructions coming soon.*
