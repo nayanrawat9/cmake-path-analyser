@@ -1,3 +1,5 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/nayanrawat9/cmake-path-analyser)
+
 # Cross-Platform Path Case Fixer
 
 A set of GUI tools to scan, detect, and fix case sensitivity issues in CMake and C/C++ source file paths for cross-platform compatibility.
