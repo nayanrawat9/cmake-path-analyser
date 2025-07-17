@@ -276,9 +276,10 @@ class CMakePathFixer:
                 if orig_path.startswith("${CMAKE_CURRENT_SOURCE_DIR}"):
                     var_prefix = "${CMAKE_CURRENT_SOURCE_DIR}"
                     orig_suffix = orig_path[len(var_prefix):]
-                    actual_suffix = os.path.relpath(actual_path, os.path.dirname(m['file']))
-                    actual_suffix = actual_suffix.replace('\\', '/')
-                    new_path = f"{var_prefix}{actual_suffix}"
+                    # Get the corrected case path by finding the actual case of the resolved path
+                    # and then reconstructing the suffix with correct case
+                    corrected_suffix = self._get_corrected_cmake_suffix(orig_suffix, os.path.dirname(m['file']), actual_path)
+                    new_path = f"{var_prefix}{corrected_suffix}"
                 else:
                     new_path = self._relative_to_cmake(actual_path, m['file'])
                 self.fix_suggestions.append({
@@ -345,6 +346,59 @@ class CMakePathFixer:
             rel = os.path.relpath(fix['file'], self.project_root)
             cb = ttk.Checkbutton(self.fix_checkbox_frame, text=f"{rel}:{fix['line']} | Old: {fix['old']} | New: {fix['new']}", variable=fix['selected'])
             cb.pack(anchor=tk.W)
+
+    def _get_corrected_cmake_suffix(self, orig_suffix, cmake_dir, actual_path):
+        """
+        Get the corrected case suffix for CMAKE_CURRENT_SOURCE_DIR paths.
+        This preserves the original path structure but corrects the case.
+        """
+        try:
+            # Remove leading slash/backslash from suffix
+            clean_suffix = orig_suffix.lstrip("/\\")
+            
+            # Split the original suffix into parts
+            orig_parts = clean_suffix.replace('\\', '/').split('/')
+            
+            # Get the actual path parts relative to cmake_dir
+            actual_rel = os.path.relpath(actual_path, cmake_dir)
+            actual_parts = actual_rel.replace('\\', '/').split('/')
+            
+            # If the number of parts match, use the actual parts with correct case
+            if len(orig_parts) == len(actual_parts):
+                corrected_suffix = '/' + '/'.join(actual_parts)
+            else:
+                # Fallback: try to correct case part by part
+                corrected_parts = []
+                current_path = Path(cmake_dir)
+                
+                for orig_part in orig_parts:
+                    if orig_part in ['..', '.']:
+                        corrected_parts.append(orig_part)
+                        if orig_part == '..':
+                            current_path = current_path.parent
+                        # '.' stays in same directory
+                    else:
+                        # Try to find the correct case for this part
+                        if current_path.is_dir():
+                            try:
+                                entries = os.listdir(current_path)
+                                correct_case = next((e for e in entries if e.lower() == orig_part.lower()), orig_part)
+                                corrected_parts.append(correct_case)
+                                current_path = current_path / correct_case
+                            except (OSError, StopIteration):
+                                corrected_parts.append(orig_part)
+                                current_path = current_path / orig_part
+                        else:
+                            corrected_parts.append(orig_part)
+                            current_path = current_path / orig_part
+                
+                corrected_suffix = '/' + '/'.join(corrected_parts)
+            
+            return corrected_suffix
+            
+        except Exception:
+            # Fallback to original suffix if anything goes wrong
+            return orig_suffix
 
     def _relative_to_cmake(self, actual_path, cmake_file):
         # Try to make the new path relative to cmake_file or project root
