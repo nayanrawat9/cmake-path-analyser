@@ -14,7 +14,7 @@ A set of GUI tools to scan, detect, and fix case sensitivity issues in CMake and
 1. Ensure you have Python 3 installed.
 2. Install required dependencies (if any):
    ```sh
-   pip install tkinter
+   pip install customtkinter
    ```
    (Tkinter is usually included with Python, but you may need to install it separately on some systems.)
 
