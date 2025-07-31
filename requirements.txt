@@ -1,3 +1,3 @@
 # Only standard library modules are used, but tkinter may need to be installed separately on some systems.
 # If you use additional packages, add them below.
-tkinter
+customtkinter
